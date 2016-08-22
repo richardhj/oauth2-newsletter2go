@@ -96,7 +96,10 @@ class Newsletter2Go extends AbstractProvider
      */
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        return static::$endpoint.'/users?_limit=-1&_expand=true';
+        return static::$endpoint.sprintf(
+            '/users?_filter=%s&_expand=true',
+            urlencode(sprintf('account_id=="%s"', $token->getValues()['account_id']))
+        );
     }
 
 
@@ -170,15 +173,7 @@ class Newsletter2Go extends AbstractProvider
      */
     protected function createResourceOwner(array $response, AccessToken $token)
     {
-        $users = $response['value'];
-        $users = array_filter(
-            $users,
-            function ($v) use ($token) {
-                return $token->getValues()['account_id'] === $v['account_id'];
-            }
-        );
-
-        return new GenericResourceOwner(reset($users), 'id');
+        return new GenericResourceOwner(reset($response['value']), 'id');
     }
 
 
