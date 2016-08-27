@@ -49,6 +49,8 @@ $accessToken = $provider->getAccessToken(
 );
 ```
 
+It is recommended to save the refresh_token (```$refreshToken = $accessToken->getRefreshToken()```) in your application rather than the username and password. Nevertheless: Handle with care!
+
 Visit [the official API documentation](https://docs.newsletter2go.com/#/Authorization) for reference.
 
 ## License
