@@ -19,7 +19,7 @@ $ composer require richardhj/oauth2-newsletter2go
 Use the auth key from your Newsletter2Go account to initiate the provider.
 
 ```php
-$provider = new Newsletter2Go\OAuth2\Client\Provider\Newsletter2Go([
+$provider = new Richardhj\Newsletter2Go\OAuth2\Client\Provider\Newsletter2Go([
     'authKey' => $authKey,
 ]);
 ```
@@ -38,7 +38,7 @@ $accessToken = $provider->getAccessToken(
 
 ### Refreshing a token
 
-Initiate the provider as desribed before. Then:
+Initiate the provider as described before. Then:
 
 ```php
 $accessToken = $provider->getAccessToken(
@@ -49,7 +49,8 @@ $accessToken = $provider->getAccessToken(
 );
 ```
 
-It is recommended to save the refresh_token (```$refreshToken = $accessToken->getRefreshToken()```) in your application rather than the username and password. Nevertheless: Handle with care!
+It is recommended to save the refresh_token (```$refreshToken = $accessToken->getRefreshToken()```) in your application
+rather than the username and password. Nevertheless: Handle with care!
 
 Visit [the official API documentation](https://docs.newsletter2go.com/#/Authorization) for reference.
 

@@ -1,14 +1,20 @@
 <?php
+
 /**
- * Newsletter2Go API integration
+ * This file is part of richardhj/oauth2-newsletter2go.
  *
- * @copyright Copyright (c) 2016 Richard Henkenjohann
- * @license   LGPL-3.0+
+ * Copyright (c) 2016-2017 Richard Henkenjohann
+ *
+ * @package   richardhj/oauth2-newsletter2go
  * @author    Richard Henkenjohann <richardhenkenjohann@googlemail.com>
+ * @copyright 2016-2017 Richard Henkenjohann
+ * @license   https://github.com/richardhj/oauth2-newsletter2go/blob/master/LICENSE LGPL-3.0
  */
 
-namespace Newsletter2Go\OAuth2\Client\Provider;
+namespace Richardhj\Newsletter2Go\OAuth2\Client\Provider;
 
+use BadFunctionCallException;
+use InvalidArgumentException;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\GenericResourceOwner;
@@ -18,7 +24,8 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * Class Newsletter2Go
- * @package Newsletter2Go\OAuth2\Client\Provider
+ *
+ * @package Richadhj\Newsletter2Go\OAuth2\Client\Provider
  */
 class Newsletter2Go extends AbstractProvider
 {
@@ -57,7 +64,7 @@ class Newsletter2Go extends AbstractProvider
     {
         $this->assertRequiredOptions($options);
 
-        $possible = $this->getConfigurableOptions();
+        $possible   = $this->getConfigurableOptions();
         $configured = array_intersect_key($options, array_flip($possible));
 
         foreach ($configured as $key => $value) {
@@ -76,7 +83,7 @@ class Newsletter2Go extends AbstractProvider
      */
     public function getBaseAuthorizationUrl()
     {
-        throw new \BadFunctionCallException(
+        throw new BadFunctionCallException(
             ' is not supported by the Newsletter2Go OAuth implementation'
         );
     }
@@ -221,14 +228,14 @@ class Newsletter2Go extends AbstractProvider
      * @param  array $options
      *
      * @return void
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     protected function assertRequiredOptions(array $options)
     {
         $missing = array_diff_key(array_flip($this->getRequiredOptions()), $options);
 
         if (!empty($missing)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 'Required options not defined: '.implode(', ', array_keys($missing))
             );
         }
