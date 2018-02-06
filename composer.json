@@ -1,33 +1,33 @@
 {
-    "name": "richardhj/oauth2-newsletter2go",
-    "description": "Newsletter2Go OAuth 2.0 Client Provider for The PHP League OAuth2-Client",
-    "keywords": [
-        "oauth",
-        "oauth2",
-        "client",
-        "authorization",
-        "authorisation",
-        "newsletter2go"
-    ],
-    "license": "LGPL-3.0+",
-    "authors": [
-        {
-            "name": "Richard Henkenjohann",
-            "email": "richardhenkenjohann@googlemail.com",
-            "role": "Developer"
-        }
-    ],
-    "support": {
-        "issues": "https://github.com/richardhj/oauth2-newsletter2go/issues",
-        "source": "https://github.com/richardhj/oauth2-newsletter2go"
-    },
-    "require": {
-        "php": ">=5.4",
-        "league/oauth2-client": "^1.4 || ^2.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "Richardhj\\Newsletter2Go\\OAuth2\\Client\\": "src/"
-        }
+  "name": "richardhj/oauth2-newsletter2go",
+  "description": "Newsletter2Go OAuth 2.0 Client Provider for The PHP League OAuth2-Client",
+  "keywords": [
+    "oauth",
+    "oauth2",
+    "client",
+    "authorization",
+    "authorisation",
+    "newsletter2go"
+  ],
+  "license": "LGPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Richard Henkenjohann",
+      "email": "richardhenkenjohann@googlemail.com",
+      "role": "Developer"
     }
+  ],
+  "support": {
+    "issues": "https://github.com/richardhj/oauth2-newsletter2go/issues",
+    "source": "https://github.com/richardhj/oauth2-newsletter2go"
+  },
+  "require": {
+    "php": "^5.4|^7.0",
+    "league/oauth2-client": "~1.4|~2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Richardhj\\Newsletter2Go\\OAuth2\\Client\\": "src/"
+    }
+  }
 }
