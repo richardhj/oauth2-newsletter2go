@@ -3,11 +3,11 @@
 /**
  * This file is part of richardhj/oauth2-newsletter2go.
  *
- * Copyright (c) 2016-2017 Richard Henkenjohann
+ * Copyright (c) 2016-2018 Richard Henkenjohann
  *
  * @package   richardhj/oauth2-newsletter2go
  * @author    Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright 2016-2017 Richard Henkenjohann
+ * @copyright 2016-2018 Richard Henkenjohann
  * @license   https://github.com/richardhj/oauth2-newsletter2go/blob/master/LICENSE LGPL-3.0
  */
 
@@ -18,6 +18,7 @@ use InvalidArgumentException;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Provider\GenericResourceOwner;
+use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 use League\OAuth2\Client\Token\AccessToken;
 use Psr\Http\Message\ResponseInterface;
 
@@ -27,7 +28,7 @@ use Psr\Http\Message\ResponseInterface;
  *
  * @package Richadhj\Newsletter2Go\OAuth2\Client\Provider
  */
-class Newsletter2Go extends AbstractProvider
+final class Newsletter2Go extends AbstractProvider
 {
 
     /**
@@ -35,30 +36,38 @@ class Newsletter2Go extends AbstractProvider
      *
      * @var string
      */
-    protected static $endpoint = 'https://api.newsletter2go.com';
-
+    private static $endpoint = 'https://api.newsletter2go.com';
 
     /**
      * Map the grant types used per default with the grant type names used by Newsletter2Go
      *
      * @var array
      */
-    protected static $grantMappings = [
+    private static $grantMappings = [
         'password'      => 'https://nl2go.com/jwt',
         'refresh_token' => 'https://nl2go.com/jwt_refresh',
     ];
-
 
     /**
      * The user's auth key
      *
      * @var string
      */
-    protected $authKey;
-
+    private $authKey;
 
     /**
-     * {@inheritdoc}
+     * Constructs an OAuth 2.0 service provider.
+     *
+     * @param array $options       An array of options to set on this provider.
+     *                             Options include `clientId`, `clientSecret`, `redirectUri`, and `state`.
+     *                             Individual providers may introduce more options, as needed.
+     *
+     * @param array $collaborators An array of collaborators that may be used to
+     *                             override this provider's default behavior. Collaborators include
+     *                             `grantFactory`, `requestFactory`, and `httpClient`.
+     *                             Individual providers may introduce more collaborators, as needed.
+     *
+     * @throws \InvalidArgumentException If required options are not provided.
      */
     public function __construct(array $options = [], array $collaborators = [])
     {
@@ -77,52 +86,70 @@ class Newsletter2Go extends AbstractProvider
         parent::__construct($options, $collaborators);
     }
 
-
     /**
-     * {@inheritdoc}
+     * Returns the base URL for authorizing a client.
+     *
+     * Eg. https://oauth.service.com/authorize
+     *
+     * @return string
+     *
+     * @throws \BadFunctionCallException Dead method due of Newsletter2Go API.
      */
     public function getBaseAuthorizationUrl()
     {
         throw new BadFunctionCallException(
-            ' is not supported by the Newsletter2Go OAuth implementation'
+            __METHOD__.' is not supported by the Newsletter2Go OAuth implementation.'
         );
     }
 
-
     /**
-     * {@inheritdoc}
+     * Returns the base URL for requesting an access token.
+     *
+     * Eg. https://oauth.service.com/token
+     *
+     * @param array $params
+     *
+     * @return string
      */
     public function getBaseAccessTokenUrl(array $params)
     {
         return static::$endpoint.'/oauth/v2/token';
     }
 
-
     /**
-     * {@inheritdoc}
+     * Returns the URL for requesting the resource owner's details.
+     *
+     * @param AccessToken $token
+     *
+     * @return string
      */
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
         return static::$endpoint.sprintf(
-            '/users?_filter=%s&_expand=true',
-            urlencode(sprintf('account_id=="%s"', $token->getValues()['account_id']))
-        );
+                '/users?_filter=%s&_expand=true',
+                urlencode(sprintf('account_id=="%s"', $token->getValues()['account_id']))
+            );
     }
 
-
     /**
-     * {@inheritdoc}
+     * Returns the default scopes used by this provider.
+     *
+     * This should only be the scopes that are required to request the details
+     * of the resource owner, rather than all the available scopes.
+     *
+     * @return array
      */
     protected function getDefaultScopes()
     {
         return [];
     }
 
-
     /**
-     * Add authorization header
+     * Builds request options used for requesting an access token.
      *
-     * {@inheritdoc}
+     * @param  array $params
+     *
+     * @return array
      */
     protected function getAccessTokenOptions(array $params)
     {
@@ -140,15 +167,19 @@ class Newsletter2Go extends AbstractProvider
         return $options;
     }
 
-
     /**
-     * Alter the grant_type as Newsletter2Go has it owns
+     * Requests an access token using a specified grant and option set.
      *
-     * {@inheritdoc}
+     * Alter the grant_type as Newsletter2Go has it owns.
+     *
+     * @param  mixed $grant
+     * @param  array $options
+     *
+     * @return AccessToken
      */
     public function getAccessToken($grant, array $options = [])
     {
-        if (false !== ($grantDefault = array_search($grant, static::$grantMappings))) {
+        if (false !== ($grantDefault = array_search($grant, static::$grantMappings, true))) {
 
             $options = array_merge(
                 $options,
@@ -163,9 +194,15 @@ class Newsletter2Go extends AbstractProvider
         return parent::getAccessToken($grant, $options);
     }
 
-
     /**
-     * {@inheritdoc}
+     * Checks a provider response for errors.
+     *
+     * @param  ResponseInterface $response
+     * @param  array|string      $data Parsed response data
+     *
+     * @return void
+     *
+     * @throws IdentityProviderException
      */
     protected function checkResponse(ResponseInterface $response, $data)
     {
@@ -174,18 +211,32 @@ class Newsletter2Go extends AbstractProvider
         }
     }
 
-
     /**
-     * {@inheritdoc}
+     * Generates a resource owner object from a successful resource owner
+     * details request.
+     *
+     * @param  array       $response
+     * @param  AccessToken $token
+     *
+     * @return ResourceOwnerInterface
      */
     protected function createResourceOwner(array $response, AccessToken $token)
     {
         return new GenericResourceOwner(reset($response['value']), 'id');
     }
 
-
     /**
-     * {@inheritdoc}
+     * Returns the authorization headers used by this provider.
+     *
+     * Typically this is "Bearer" or "MAC". For more information see:
+     * http://tools.ietf.org/html/rfc6749#section-7.1
+     *
+     * No default is provided, providers must overload this method to activate
+     * authorization headers.
+     *
+     * @param  mixed|null $token Either a string or an access token instance
+     *
+     * @return array
      */
     protected function getAuthorizationHeaders($token = null)
     {
@@ -194,13 +245,12 @@ class Newsletter2Go extends AbstractProvider
         ];
     }
 
-
     /**
      * Returns all options that can be configured
      *
      * @return array
      */
-    protected function getConfigurableOptions()
+    private function getConfigurableOptions()
     {
         return array_merge(
             $this->getRequiredOptions(),
@@ -208,19 +258,17 @@ class Newsletter2Go extends AbstractProvider
         );
     }
 
-
     /**
      * Returns all options that are required
      *
      * @return array
      */
-    protected function getRequiredOptions()
+    private function getRequiredOptions()
     {
         return [
             'authKey',
         ];
     }
-
 
     /**
      * Verifies that all required options have been passed
@@ -228,9 +276,10 @@ class Newsletter2Go extends AbstractProvider
      * @param  array $options
      *
      * @return void
+     *
      * @throws InvalidArgumentException
      */
-    protected function assertRequiredOptions(array $options)
+    private function assertRequiredOptions(array $options)
     {
         $missing = array_diff_key(array_flip($this->getRequiredOptions()), $options);
 
