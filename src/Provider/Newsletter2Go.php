@@ -167,7 +167,8 @@ final class Newsletter2Go extends AbstractProvider
         return $options;
     }
 
-    /**
+    /** @noinspection PhpDocRedundantThrowsInspection
+     *
      * Requests an access token using a specified grant and option set.
      *
      * Alter the grant_type as Newsletter2Go has it owns.
@@ -176,6 +177,8 @@ final class Newsletter2Go extends AbstractProvider
      * @param  array $options
      *
      * @return AccessToken
+     *
+     * @throws IdentityProviderException
      */
     public function getAccessToken($grant, array $options = [])
     {
