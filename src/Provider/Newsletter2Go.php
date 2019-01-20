@@ -3,11 +3,11 @@
 /**
  * This file is part of richardhj/oauth2-newsletter2go.
  *
- * Copyright (c) 2016-2018 Richard Henkenjohann
+ * Copyright (c) 2016-2019 Richard Henkenjohann
  *
  * @package   richardhj/oauth2-newsletter2go
  * @author    Richard Henkenjohann <richardhenkenjohann@googlemail.com>
- * @copyright 2016-2018 Richard Henkenjohann
+ * @copyright 2016-2019 Richard Henkenjohann
  * @license   https://github.com/richardhj/oauth2-newsletter2go/blob/master/LICENSE LGPL-3.0
  */
 
@@ -195,6 +195,21 @@ final class Newsletter2Go extends AbstractProvider
         }
 
         return parent::getAccessToken($grant, $options);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getAccessTokenRequest(array $params)
+    {
+        $method  = $this->getAccessTokenMethod();
+        $url     = $this->getAccessTokenUrl($params);
+        $options = $this->optionProvider->getAccessTokenOptions($this->getAccessTokenMethod(), $params);
+
+        $encodedCredentials = base64_encode($this->authKey);
+        $options['headers']['Authorization'] = 'Basic ' . $encodedCredentials;
+
+        return $this->getRequest($method, $url, $options);
     }
 
     /**
